@@ -2,7 +2,7 @@ package com.drotsakura.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.drotsakura.pojo.Employee;
-import com.drotsakura.redata.R;
+import com.drotsakura.common.R;
 import com.drotsakura.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -57,5 +58,23 @@ public class EmployeeController {
     public R<String> logout(HttpServletRequest request){
         request.getSession().removeAttribute("employee");
         return R.success("退出成功");
+    }
+
+    //添加员工
+    @PostMapping
+    public R<String> save(@RequestBody Employee employee,HttpServletRequest httpServletRequest){
+        //设置默认密码：123456
+        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+        //设置时间相关信息
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+        //其他信息
+        Long id = (Long) httpServletRequest.getSession().getAttribute("employee");
+        employee.setCreateUser(id);
+        employee.setUpdateUser(id);
+
+        //保持用户数据到数据库
+        employeeService.save(employee);
+        return R.success("员工创建成功");
     }
 }

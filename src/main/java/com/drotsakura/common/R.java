@@ -1,4 +1,4 @@
-package com.drotsakura.redata;
+package com.drotsakura.common;
 
 import lombok.Data;
 import java.util.HashMap;
