@@ -1,19 +1,20 @@
 package com.drotsakura.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.drotsakura.pojo.Employee;
 import com.drotsakura.common.R;
 import com.drotsakura.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+
+import static com.drotsakura.common.R.success;
 
 @Slf4j
 @RestController
@@ -51,13 +52,13 @@ public class EmployeeController {
 
         //登录成功， 将员工id存入Session并返回登录成功结果
         request.getSession().setAttribute("employee",emp.getId());
-        return R.success(emp);
+        return success(emp);
     }
 
     @PostMapping("/logout")
     public R<String> logout(HttpServletRequest request){
         request.getSession().removeAttribute("employee");
-        return R.success("退出成功");
+        return success("退出成功");
     }
 
     //添加员工
@@ -75,6 +76,20 @@ public class EmployeeController {
 
         //保持用户数据到数据库
         employeeService.save(employee);
-        return R.success("员工创建成功");
+        return success("员工创建成功");
+    }
+
+    //分页查询
+    @GetMapping("/page")
+    public R<Page> page(Long page,Long pageSize,String name){
+        //创建分页对象
+        Page<Employee> pageInfo = new Page<>(page,pageSize);
+        //条件构造器
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);
+        queryWrapper.orderByDesc(Employee::getCreateTime);
+        //组装条件，执行查询
+        employeeService.page(pageInfo,queryWrapper);
+        return R.success(pageInfo);
     }
 }
