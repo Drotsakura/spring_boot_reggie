@@ -1,6 +1,7 @@
 package com.drotsakura.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.drotsakura.common.BaseContext;
 import com.drotsakura.common.R;
 import org.springframework.util.AntPathMatcher;
 
@@ -32,6 +33,8 @@ public class LoginFilter implements Filter {
         }
         //需要处理的请求,判断是否登录
         if (httpServletRequest.getSession().getAttribute("employee") != null){
+            Long id = (Long) httpServletRequest.getSession().getAttribute("employee");
+            BaseContext.setId(id);
             //已经登录，放行
             filterChain.doFilter(httpServletRequest,httpServletResponse);
             return;

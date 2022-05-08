@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.drotsakura.pojo.Employee;
 import com.drotsakura.common.R;
 import com.drotsakura.service.EmployeeService;
+import com.mysql.cj.log.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 
 import static com.drotsakura.common.R.success;
@@ -67,12 +69,12 @@ public class EmployeeController {
         //设置默认密码：123456
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
         //设置时间相关信息
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
+        //employee.setCreateTime(LocalDateTime.now());
+        //employee.setUpdateTime(LocalDateTime.now());
         //其他信息
-        Long id = (Long) httpServletRequest.getSession().getAttribute("employee");
-        employee.setCreateUser(id);
-        employee.setUpdateUser(id);
+        //Long id = (Long) httpServletRequest.getSession().getAttribute("employee");
+        //employee.setCreateUser(id);
+        //employee.setUpdateUser(id);
 
         //保持用户数据到数据库
         employeeService.save(employee);
@@ -91,5 +93,27 @@ public class EmployeeController {
         //组装条件，执行查询
         employeeService.page(pageInfo,queryWrapper);
         return R.success(pageInfo);
+    }
+    @PutMapping
+    public R<String> update(HttpServletRequest httpServletRequest,@RequestBody Employee employee){
+        //HttpSession session = httpServletRequest.getSession();
+        //Long id = (Long) session.getAttribute("employee");
+
+        //设置更新时间
+        //employee.setUpdateTime(LocalDateTime.now());
+        //设置更新用户
+        //employee.setUpdateUser(id);
+        //完成数据更新
+        employeeService.updateById(employee);
+        return R.success("员工信息修改成功");
+    }
+
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id){
+        Employee employee = employeeService.getById(id);
+        if (employee != null){
+            return R.success(employee);
+        }
+        return R.error("员工不存在");
     }
 }

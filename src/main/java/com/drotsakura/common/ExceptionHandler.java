@@ -14,12 +14,17 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @ResponseBody
 public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public R<String> exceptionhandler(SQLIntegrityConstraintViolationException exception){
+    public R<String> exceptionHandler(SQLIntegrityConstraintViolationException exception){
         if (exception.getMessage().contains("Duplicate entry")){
             String[] msg = exception.getMessage().split(" ");
             String  s= msg[2];
             return R.error(s+"名称已存在");
         }
         return R.error("未知错误");
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException ex){
+        return R.error(ex.getMessage());
     }
 }
