@@ -8,6 +8,8 @@ import com.drotsakura.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
@@ -34,5 +36,22 @@ public class CategoryController {
     public R<String> delete(Long ids){
         categoryService.remove(ids);
         return R.success("分类删除成功");
+    }
+
+    @PutMapping
+    public R<String> update(@RequestBody Category category){
+        categoryService.updateById(category);
+        return R.success("更新成功");
+    }
+
+    @GetMapping("/list")
+    public R<List<Category>> list(int type){
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Category::getType,type)
+                .orderByAsc(Category::getSort)
+                .orderByDesc(Category::getUpdateTime);
+
+        List<Category> categoryList = categoryService.list(queryWrapper);
+        return R.success(categoryList);
     }
 }
