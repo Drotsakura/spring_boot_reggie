@@ -23,7 +23,7 @@ public class CategoryController {
     }
 
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize){
+    public R<Page> page(Integer page,Integer pageSize){
         System.out.println(page);
         Page<Category> pageInfo = new Page<>(page,pageSize);
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
@@ -45,13 +45,14 @@ public class CategoryController {
     }
 
     @GetMapping("/list")
-    public R<List<Category>> list(int type){
+    public R<List<Category>> list(Integer type){
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Category::getType,type)
+        queryWrapper.eq(type != null,Category::getType,type)
                 .orderByAsc(Category::getSort)
                 .orderByDesc(Category::getUpdateTime);
 
         List<Category> categoryList = categoryService.list(queryWrapper);
+
         return R.success(categoryList);
     }
 }
